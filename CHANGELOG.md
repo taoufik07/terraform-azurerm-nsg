@@ -1,3 +1,8 @@
+# Unreleased
+
+Added
+  * GH-1: Add support for custom rules
+
 # v5.1.0 - 2022-02-03
 
 Added

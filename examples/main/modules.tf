@@ -38,6 +38,25 @@ module "network_security_group" {
 
   # You can set either a prefix for generated name or a custom one for the resource naming
   #custom_network_security_group_names = "my_nsg"
+
+  additional_rules = [
+    {
+      priority               = 300
+      name                   = "mysql_inbound"
+      destination_port_range = "3306"
+      source_address_prefix  = "10.0.0.0/24"
+    },
+    {
+      priority                   = 400
+      name                       = "my_service_outbound"
+      access                     = "Allow"    # defaults to 'Allow'
+      direction                  = "Outbound" # defaults to 'Inbound'
+      protocol                   = "Tcp"      # defaults to 'Tcp'
+      destination_port_ranges    = ["8081", "1000-2000"]
+      source_address_prefixes    = ["10.0.0.0/24", "10.1.0.0/24"]
+      destination_address_prefix = "*"
+    }
+  ]
 }
 
 # Single port and prefix sample
