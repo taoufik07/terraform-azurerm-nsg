@@ -12,8 +12,9 @@ The default module configuration deny all inbound traffic.
 
 | Module version | Terraform version | AzureRM version |
 | -------------- | ----------------- | --------------- |
-| >= 5.x.x       | 0.15.x & 1.0.x    | >= 2.0          |
-| >= 4.x.x       | 0.13.x            | >= 2.0          |
+| >= 6.x.x       | 1.x               | >= 3.0          |
+| >= 5.x.x       | 0.15.x            | >= 2.0          |
+| >= 4.x.x       | 0.13.x / 0.14.x   | >= 2.0          |
 | >= 3.x.x       | 0.12.x            | >= 2.0          |
 | >= 2.x.x       | 0.12.x            | < 2.0           |
 | <  2.x.x       | 0.11.x            | < 2.0           |
@@ -65,6 +66,28 @@ module "network_security_group" {
 
   # You can set either a prefix for generated name or a custom one for the resource naming
   #custom_network_security_group_names = "my_nsg"
+
+  additional_rules = [
+    {
+      priority                   = 300
+      name                       = "mysql_inbound"
+      source_port_range          = "*"
+      destination_port_range     = "3306"
+      source_address_prefix      = "10.0.0.0/24"
+      destination_address_prefix = "*"
+    },
+    {
+      priority                   = 400
+      name                       = "my_service_outbound"
+      access                     = "Allow"    # defaults to 'Allow'
+      direction                  = "Outbound" # defaults to 'Inbound'
+      protocol                   = "Tcp"      # defaults to 'Tcp'
+      source_port_range          = "*"
+      destination_port_ranges    = ["8081", "1000-2000"]
+      source_address_prefixes    = ["10.0.0.0/24", "10.1.0.0/24"]
+      destination_address_prefix = "*"
+    }
+  ]
 }
 
 # Single port and prefix sample
@@ -100,7 +123,6 @@ resource "azurerm_network_security_rule" "custom" {
   source_address_prefixes    = ["10.0.0.0/24", "10.1.0.0/24"]
   destination_address_prefix = "*"
 }
-
 ```
 
 ## Providers
@@ -125,6 +147,7 @@ No modules.
 | [azurerm_network_security_rule.http_inbound](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_rule) | resource |
 | [azurerm_network_security_rule.https_inbound](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_rule) | resource |
 | [azurerm_network_security_rule.lb_health_probe_inbound](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_rule) | resource |
+| [azurerm_network_security_rule.nsg_rule](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_rule) | resource |
 | [azurerm_network_security_rule.rdp_inbound](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_rule) | resource |
 | [azurerm_network_security_rule.ssh_inbound](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_rule) | resource |
 | [azurerm_network_security_rule.winrm_inbound](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_rule) | resource |
@@ -133,6 +156,7 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| additional\_rules | Additional network security group rules to add. For arguements please refer to https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_rule#argument-reference | `list(any)` | `[]` | no |
 | allowed\_http\_source | Allowed source for inbound HTTP traffic. Can be a Service Tag, "*" or a CIDR list. | `any` | `[]` | no |
 | allowed\_https\_source | Allowed source for inbound HTTPS traffic. Can be a Service Tag, "*" or a CIDR list. | `any` | `[]` | no |
 | allowed\_rdp\_source | Allowed source for inbound RDP traffic. Can be a Service Tag, "*" or a CIDR list. | `any` | `[]` | no |
